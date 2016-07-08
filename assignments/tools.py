@@ -1,5 +1,7 @@
 import os
 import sys
+import tarfile
+
 from six.moves.urllib.request import urlretrieve
 
 
@@ -32,3 +34,31 @@ def maybe_download(filename, url, expected_bytes, force=False):
 			'Actual size: {:d}. Expected size: {:d}'.format(
 			filename, url, statinfo.st_size, expected_bytes))
 	return filename
+
+def maybe_extract(filename, num_classes, force=False):
+	"""Assumes that all the data for each class is in a separate folder"""
+	root = os.path.splitext(os.path.splitext(filename)[0])[0] #remove.tar.gz
+
+	if os.path.isdir(root) and not force:
+		print('{} already present - skipping extraction of {}.'.format(
+			root, filename))
+	else:
+		print('Extracting data from {}. This may take a while.'.format(
+			root))
+		tar = tarfile.open(filename)
+		sys.stdout.flush()
+		tar.extractall()
+		tar.close()
+		print('Extraction complete.')
+
+	data_folders = [
+		os.path.join(root, d) for d in sorted(os.listdir(root))
+		if os.path.isdir(os.path.join(root, d))]
+
+	if len(data_folders) != num_classes:
+		raise Exception(
+			'Expected {} folders, one per class. Found {} instead.'.format(
+				num_classes, len(data_folders)))
+
+	return data_folders
+
