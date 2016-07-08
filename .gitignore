@@ -142,3 +142,5 @@ $RECYCLE.BIN/
 # Other things to ignore
 *.pdf
 *.tar.gz
+notMNIST_small/
+notMNIST_large/
