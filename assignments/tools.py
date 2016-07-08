@@ -25,7 +25,7 @@ def maybe_download(filename, url, expected_bytes, force=False):
 	statinfo = os.stat(filename)
 
 	if statinfo.st_size == expected_bytes:
-		print('Download succesfully verified')
+		print('{:s} succesfully verified'.format(filename))
 	else:
 		os.remove(filename)
 		raise Exception('Failed to verify {:s} from {:s}\n\t\t'
