@@ -145,3 +145,4 @@ $RECYCLE.BIN/
 notMNIST_small/
 notMNIST_large/
 *test*
+*.pickle
