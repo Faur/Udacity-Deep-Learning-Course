@@ -49,6 +49,22 @@ else:
 	plt.draw()
 
 
+print()
+print('Problem 3: Verify that the data is balaced accross classes')
+if FAST:
+	print('Skipping count')
+else:
+	print('Training data:')
+	for pickle_file in train_datasets:
+		with open(pickle_file, 'rb') as f:
+			data = pickle.load(f)
+		print('  {}'.format(len(data)))
+
+	print('Test data:')
+	for pickle_file in test_datasets:
+		with open(pickle_file, 'rb') as f:
+			data = pickle.load(f)
+		print('  {}'.format(len(data)))
 
 
 
