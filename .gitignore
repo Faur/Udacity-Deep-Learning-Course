@@ -144,3 +144,4 @@ $RECYCLE.BIN/
 *.tar.gz
 notMNIST_small/
 notMNIST_large/
+*test*
