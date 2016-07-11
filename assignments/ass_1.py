@@ -77,19 +77,42 @@ test_size = 10000
 # val_size = 18000
 # test_size = 18000
 
-val_set, val_labels, train_set, train_labels = merge_datasets(
+valid_dataset, valid_labels, train_dataset, train_labels = merge_datasets(
 	train_datasets, train_size, val_size)
-_, _, test_set, test_labels = merge_datasets(test_datasets, test_size)
+_, _, test_dataset, test_labels = merge_datasets(test_datasets, test_size)
 
-print('Training:  \t{}\t {}'.format(train_set.shape, train_labels.shape))
-print('Validation:\t{}\t\t {}'.format(val_set.shape, val_labels.shape))
-print('Test:      \t{}\t\t {}'.format(test_set.shape, test_labels.shape))
+print('Training:  \t{}\t {}'.format(train_dataset.shape, train_labels.shape))
+print('Validation:\t{}\t\t {}'.format(valid_dataset.shape, valid_labels.shape))
+print('Test:      \t{}\t\t {}'.format(test_dataset.shape, test_labels.shape))
 
 
-train_set, train_labels = randomize(train_set, train_labels)
-val_set, val_labels = randomize(val_set, val_labels)
-test_set, test_labels = randomize(test_set, test_labels)
+train_dataset, train_labels = randomize(train_dataset, train_labels)
+valid_dataset, valid_labels = randomize(valid_dataset, valid_labels)
+test_dataset, test_labels = randomize(test_dataset, test_labels)
 
+
+print()
+print('Saving dataset ...')
+pickle_file = 'notMNIST.pickle'
+
+try:
+	f = open(pickle_file, 'wb')
+	save = {
+		'train_dataset': train_dataset,
+		'train_labels': train_labels,
+		'valid_dataset': valid_dataset,
+		'valid_labels': valid_labels,
+		'test_dataset': test_dataset,
+		'test_labels': test_labels,
+		}
+	pickle.dump(save, f, pickle.HIGHEST_PROTOCOL)
+	f.close()
+except Exception as e:
+	print('Unable to save data to {} : {}'.format(pickle_file, e))
+	raise
+
+statinfo = os.stat(pickle_file)
+print('Compressed pickle size: {}'.format(statinfo.st_size))
 
 
 
