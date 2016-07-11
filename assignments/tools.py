@@ -4,9 +4,11 @@ import tarfile
 
 from six.moves.urllib.request import urlretrieve
 
+def softmax(x):
+    """Compute softmax values for each sets of scores in x."""
+    return np.exp(x)/np.sum(np.exp(x), axis=0)
 
 last_percentage_reported = None
-
 def download_progress_hook(count, blockSize, totalSize):
 	"""A hook to report the progress of a download.
 	Reports every 1% change ind download progress"""
