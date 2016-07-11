@@ -204,3 +204,10 @@ def merge_datasets(pickle_files, train_size, val_size=0, image_size=28):
 			raise
 
 	return val_set, val_labels, train_set, train_labels
+
+
+def randomize(dataset, labels):
+	permutation = np.random.permutation(labels.shape[0])
+	shuffled_dataset = dataset[permutation, :, :]
+	shuffled_labels = labels[permutation]
+	return shuffled_dataset, shuffled_labels
