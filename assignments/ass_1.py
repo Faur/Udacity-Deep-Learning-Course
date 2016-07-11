@@ -30,6 +30,11 @@ png_img = img_plot(train_folders[0], 9, 9)
 plt.draw()
 
 
+print()
+print('Pickeling dataset')
+train_datasets = maybe_pickle(train_folders, 45000)
+test_datasets = maybe_pickle(test_folders, 1800)
+
 
 print('Done!')
 plt.show()

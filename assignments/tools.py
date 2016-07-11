@@ -83,3 +83,56 @@ def img_plot(folder, row=12, col=12, title='Image Plot'):
 	plt.subplots_adjust(top=0.91, hspace=0.1, wspace=0.1)
 	return all_img
 
+
+
+def load_letter(folder, min_num_images, image_size=28, pixel_depth = 255.0):
+	"""Load the all data for a single letter label."""
+	image_files = os.listdir(folder)
+	dataset = np.ndarray(shape=(len(image_files), image_size, image_size),
+								dtype=np.float32)
+	print()
+	print('Loading from {}'.format(folder))
+	num_images = 0
+	for image in image_files:
+		image_file = os.path.join(folder, image)
+		try:
+			image_data = (ndimage.imread(image_file).astype(float) 
+							- pixel_depth/2)/pixel_depth
+			if image_data.shape != (image_size, image_size):
+				raise Exception('Unexpected image shape: {}'.format(
+									str(image_data.shape)))
+			dataset[num_images, :, :] = image_data
+			num_images += 1
+		except IOError as e:
+			print('Could not read: {} : skipping it'.format(image_file))
+
+	dataset = dataset[0:num_images, :, :]
+	if num_images < min_num_images:
+		raise Exception('Fewer images than expected: {} < {}'.format(
+							num_images, min_num_images))
+
+	print('Done loading from {}'.format(folder))
+	print('Full dataset tensor:'.format(dataset.shape))
+	print('mean: {}'.format(np.mean(dataset)))
+	print('std:  {}'.format(np.std(dataset)))
+	return dataset
+
+
+def maybe_pickle(data_folders, min_num_imagers_per_class, image_size=28, 
+		pixel_depth = 255.0, force=False):
+	dataset_names = []
+	for folder in data_folders:
+		set_filename = folder + '.pickle'
+		dataset_names.append(set_filename)
+		if os.path.exists(set_filename) and not force:
+			print('{:s} aleready exists - skipping pickling.'.format(set_filename))
+		else:
+			print('Pickling {}.'.format(set_filename))
+			dataset = load_letter(folder, min_num_imagers_per_class)
+			try:
+				with open(set_filename, 'wb') as f:
+					pickle.dump(dataset, f, pickle.HIGHEST_PROTOCOL)
+			except Exception as e:	
+				print('Unable to save data to {} : {}'.format(set_filename, e))
+	return dataset_names
+
