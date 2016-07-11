@@ -24,16 +24,24 @@ train_folders = maybe_extract(train_filename, num_classes)
 test_folders = maybe_extract(test_filename, num_classes)
 
 
-print()
-print('Problem 1: Visulizing data ...')
-png_img = img_plot(train_folders[0], 9, 9)
-plt.draw()
+# print()
+# print('Problem 1: Visulizing data ...')
+# png_img = img_plot(train_folders[0], 9, 9)
+# plt.draw()
 
 
 print()
 print('Pickeling dataset')
 train_datasets = maybe_pickle(train_folders, 45000)
 test_datasets = maybe_pickle(test_folders, 1800)
+
+
+print()
+print('Problem 2: Visualize the dataset again')
+png_img = data_plot(train_datasets[0], 9, 9)
+
+
+
 
 
 print('Done!')

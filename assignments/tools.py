@@ -1,5 +1,6 @@
 import os
 import sys
+import numpy as np
 import tarfile
 import time
 import random; random.seed(int(time.time()))
@@ -8,6 +9,8 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 
 from six.moves.urllib.request import urlretrieve
+from six.moves import cPickle as pickle
+from scipy import ndimage
 
 def softmax(x):
     """Compute softmax values for each sets of scores in x."""
@@ -88,6 +91,23 @@ def img_plot(folder, row=12, col=12, title='Image Plot'):
 	plt.subplots_adjust(top=0.91, hspace=0.1, wspace=0.1)
 	return img_plt
 
+
+def data_plot(pickle_file, row=12, col=12, title='Data Plot'):
+	with open(pickle_file, 'rb') as f:
+		data = pickle.load(f)
+
+	png_idx = random.sample(range(0, len(data)), row*col)
+	img_plt = plt.figure(1)
+	for i in range(row*col):
+		plt.subplot(row,col,i+1)
+		# img = mpimg.imread(os.path.join(folder, data[png_idx[i]]))
+		plt.imshow(data[png_idx[i]], cmap='gray_r', interpolation='nearest')#, aspect='auto')
+		plt.axis('off')
+
+	plt.suptitle(title, fontsize=20)
+	# plt.tight_layout(pad=0, w_pad=0, h_pad=0)
+	plt.subplots_adjust(top=0.91, hspace=0.1, wspace=0.1)
+	return img_plt
 
 
 def load_letter(folder, min_num_images, image_size=28, pixel_depth = 255.0):
