@@ -68,6 +68,28 @@ else:
 
 
 
+print()
+print('Merge and prune dataset')
+train_size = 200000
+val_size = 10000
+test_size = 10000
 
+# train_size = 500000
+# val_size = 18000
+# test_size = 18000
+
+
+val_set, val_labels, train_set, train_labels = merge_datasets(
+	train_datasets, train_size, val_size)
+_, _, test_set, test_labels = merge_datasets(test_datasets, test_size)
+
+print('Training:  \t{}\t {}'.format(train_set.shape, train_labels.shape))
+print('Validation:\t{}\t\t {}'.format(val_set.shape, val_labels.shape))
+print('Test:      \t{}\t\t {}'.format(test_set.shape, test_labels.shape))
+
+
+
+
+print()
 print('Done!')
 plt.show()

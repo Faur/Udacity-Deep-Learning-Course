@@ -161,3 +161,46 @@ def maybe_pickle(data_folders, min_num_imagers_per_class, image_size=28,
 				print('Unable to save data to {} : {}'.format(set_filename, e))
 	return dataset_names
 
+
+def make_arrays(nb_rows, img_size):
+	if nb_rows:
+		dataset = np.ndarray((nb_rows, img_size, img_size), dtype=np.float32)
+		labels = np.ndarray(nb_rows, dtype=np.int32)
+	else:
+		dataset, labels = None, None
+	return dataset, labels
+
+def merge_datasets(pickle_files, train_size, val_size=0, image_size=28):
+	num_classes = len(pickle_files)
+	val_set, val_labels 	= make_arrays(val_size, image_size)
+	train_set, train_labels = make_arrays(train_size, image_size)
+	vsize_per_class = val_size // num_classes
+	tsize_per_class = train_size // num_classes
+		# // = floor division
+
+	start_v, start_t = 0, 0
+	end_v, end_t = vsize_per_class, tsize_per_class
+	end_l = vsize_per_class + tsize_per_class
+
+	for label, pickle_file in enumerate(pickle_files):
+		try:
+			with open(pickle_file, 'rb') as f:
+				letter_set = pickle.load(f)
+				np.random.shuffle(letter_set)
+				if val_set is not None:
+					valid_letter = letter_set[:vsize_per_class, :, :]
+					val_set[start_v:end_v, :, :] = valid_letter
+					val_labels[start_v:end_v] = label
+					start_v += vsize_per_class
+					end_v += vsize_per_class
+
+				train_letter = letter_set[vsize_per_class:end_l, :, :]
+				train_set[start_t:end_t, :, :] = train_letter
+				train_labels[start_t:end_t] = label
+				start_t += tsize_per_class
+				end_t += tsize_per_class
+		except Exception as e:
+			print('Unable to process data from {} : {}'.format(pickle_file, e))
+			raise
+
+	return val_set, val_labels, train_set, train_labels
