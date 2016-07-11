@@ -1,11 +1,6 @@
 import os
 import sys
 import tarfile
-import time
-import random; random.seed(int(time.time()))
-
-import matplotlib.pyplot as plt
-import matplotlib.image as mpimg
 
 from six.moves.urllib.request import urlretrieve
 
@@ -72,21 +67,21 @@ def maybe_extract(filename, num_classes, force=False):
 
 def img_plot(folder, row=12, col=12, title='Image Plot'):
 	"""Assumes there are only picutres that can be displayed with plt.imshow in folder"""
-	all_img = os.listdir(folder)
+	all_A = os.listdir(folder)
 		# Get all files in the 'A' folder
 
-	png_idx = random.sample(range(0, len(all_img)), row*col)
-	img_plt = plt.figure(1)
+	png_idx = random.sample(range(0, len(all_A)), row*col)
+	all_img = plt.figure(1)
 	for i in range(row*col):
 		plt.subplot(row,col,i+1)
-		img = mpimg.imread(os.path.join(folder, all_img[png_idx[i]]))
+		img = mpimg.imread(os.path.join(folder, all_A[png_idx[i]]))
 		plt.imshow(img, cmap='gray_r', interpolation='nearest')#, aspect='auto')
 		plt.axis('off')
 
 	plt.suptitle(title, fontsize=20)
 	# plt.tight_layout(pad=0, w_pad=0, h_pad=0)
 	plt.subplots_adjust(top=0.91, hspace=0.1, wspace=0.1)
-	return img_plt
+	return all_img
 
 
 
