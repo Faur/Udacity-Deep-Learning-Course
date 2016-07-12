@@ -211,3 +211,9 @@ def randomize(dataset, labels):
 	shuffled_dataset = dataset[permutation, :, :]
 	shuffled_labels = labels[permutation]
 	return shuffled_dataset, shuffled_labels
+
+def reformat(dataset, labels, image_size=28, num_labels=10):
+	dataset = dataset.reshape((-1, image_size*image_size)).astype(np.float32)
+	# Create one-hot encoding
+	labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
+	return dataset, labels
