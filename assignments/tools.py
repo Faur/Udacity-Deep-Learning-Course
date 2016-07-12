@@ -1,6 +1,8 @@
 import os
 import sys
 import numpy as np
+import theano
+import theano.tensor as T
 import tarfile
 import time
 import random; random.seed(int(time.time()))
@@ -215,5 +217,25 @@ def randomize(dataset, labels):
 def reformat(dataset, labels, image_size=28, num_labels=10):
 	dataset = dataset.reshape((-1, image_size*image_size)).astype(np.float32)
 	# Create one-hot encoding
-	labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
+	# labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
 	return dataset, labels
+
+def shared_dataset(x, y, borrow=True):
+	"""Loads data into theano shared variables.
+
+	Using shared variables allows theano to copy it into GPU memory.
+	Otherwise a every minibatch should be copied into GPU memory everytiem,
+	which is slow."""
+
+	shared_x = theano.shared(np.asarray(x, 
+								dtype=theano.config.floatX),
+								borrow=borrow)
+	shared_y = theano.shared(np.asarray(y,
+								dtype=theano.config.floatX),
+								borrow=borrow)
+
+	# GPU only support float data types, but we need y as an int (y is used as an
+	# index). Therefore it is cast to int.
+	return shared_x, T.cast(shared_y, 'int32')
+
+
