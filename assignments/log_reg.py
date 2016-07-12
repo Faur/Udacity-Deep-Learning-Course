@@ -41,14 +41,37 @@ class LogisticRegression(object):
 		use of minibatches."""
 
 		return -T.mean(
-					T.log(
-						T.sum(
-							self.p_y_given_x * y
-						)
-					)
+					T.log(self.p_y_given_x)[T.arange(y.shape[0]), y]
 				)
+
+		# If using one-hot encoding
+		# return -T.mean(
+		# 			T.log(
+		# 				T.sum(
+		# 					self.p_y_given_x * y
+		# 				)
+		# 			)
+		# 		)
 		# y.shape[0] is the symbolic expression for the number of examples
-					# T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+
+	def errors(self, y):
+
+		# Check if y has the same dimensions as y_pred
+		if y.ndim != self.y_pred.ndim:
+			raise TypeError(
+				'y should have the same shape as self.y_pred:',
+				('y', y.type, 'y_pred', self.y_pred.type)
+			)
+
+		# Check that y has the correct datatype
+		if y.dtype.startswith('int'):
+			return T.mean(T.neq(self.y_pred, y))
+		else:
+			raise NotImplementedError()
+
+
+		
+
 
 
 
