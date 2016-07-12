@@ -115,7 +115,13 @@ statinfo = os.stat(pickle_file)
 print('Compressed pickle size: {}'.format(statinfo.st_size))
 
 
+print()
+print('Problem 5: Measure the degree of overlap between train, validation and test set')
+print('SKIP')
 
+print()
+print('Problem 6: Train a logistic classifier on the data')
+print('SKIP')
 
 print()
 print('Done!')
