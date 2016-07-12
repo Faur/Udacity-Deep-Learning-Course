@@ -1,7 +1,12 @@
+import timeit
+import os
 
 from six.moves import cPickle as pickle
+
 from tools import *
 from log_reg import * 
+
+
 
 pickle_file = 'notMNIST.pickle'
 
@@ -38,24 +43,36 @@ import theano
 import theano.tensor as T
 print('... Building the model')
 
+##### PARAMETERS AND SETTINGS #####
+
+# output_path = os.path.join('..', 'output')
+model_save = os.path.join('..', 'output', 'best_model.pkl')
+
+# Data parameters
 image_size = 28
 num_labels = 10
 
+# Training parameters
+n_epochs = 10000
 batch_size = 100
-
 learning_rate = 0.13
-
-
-##### AUTO RUN #####
 
 train_dataset, train_labels = shared_dataset(train_dataset, train_labels)
 valid_dataset, valid_labels = shared_dataset(valid_dataset, valid_labels)
 test_dataset, test_labels = shared_dataset(test_dataset, test_labels)
-
 n_train_batches = train_dataset.get_value(borrow=True).shape[0] // batch_size
 n_valid_batches = valid_dataset.get_value(borrow=True).shape[0] // batch_size
 n_test_batches = test_dataset.get_value(borrow=True).shape[0] // batch_size
 
+# Early stopping parameters
+patience = 5000 # Look at this many examples regardless
+patience_increase = 2 
+improvement_threshold = 1.005	# A relative improvement of this much is considered
+validation_frequency = min(n_train_batches, patience//2)
+							# Go through this many minibatches before checking the network
+
+
+##### AUTO RUN #####
 index = T.lscalar()
 x = T.matrix('x')
 y = T.ivector('y')
@@ -104,6 +121,77 @@ train_model = theano.function(
 		y: train_labels[index*batch_size: (index+1)*batch_size]
 	}
 )
+
+
+###############
+# TRAIN MODEL #
+###############
+print('... training the model')
+best_validation_loss = np.inf
+test_score = 0
+start_time = timeit.default_timer()
+
+
+done_looping = False
+epoch = 0
+
+while (epoch < n_epochs) and (not done_looping):
+	epoch += 1
+
+	for minibatch_index in range(n_train_batches):
+
+		minibatch_avg_cost = train_model(minibatch_index)
+		# Iteration number
+		iter = (epoch-1) * n_train_batches + minibatch_index
+
+		if (iter+1) % validation_frequency == 0:
+			# Compute zero-one loss on validation set
+			validation_losses = [validate_model(i) for i in range(n_valid_batches)]
+			this_validation_loss = np.mean(validation_losses)
+
+			print('epoch {}, minibatch {}/{}, validation error {} %%'.format(
+					epoch, minibatch_index+1, n_train_batches, this_validation_loss*100)
+			)
+
+			# Check if new best score is found
+			if this_validation_loss < best_validation_loss:
+				# if improvement is good enough improve patiences
+				if this_validation_loss < best_validation_loss * improvement_threshold:
+					patience = max(patience, iter * patience_increase)
+
+				best_validation_loss = this_validation_loss
+
+				# test on the test set
+				test_losses = [test_model(i) for i in range(n_test_batches)]
+				test_score = np.mean(test_losses)
+
+				print('    epoch {}, minibatch {}/{}, test error of '
+						'best model {} %%'.format(
+						epoch, minibatch_index+1, n_test_batches, test_score*100)
+				)
+
+				with open(model_save, 'wb') as f:
+					pickle.dump(classifier, f)
+		# if patience <= iter:
+		# 	done_looping = True
+		# 	break
+
+end_time = timeit.default_timer()
+print()
+print(
+	(
+		'Optimization complete with best validation score of %f %%, '
+		'with test performance %f %%'
+	)
+		% (best_validation_loss * 100., test_score * 100.)
+	)
+print('The code run for %d epochs, with %f epochs/sec' % (
+	epoch, 1. * epoch / (end_time - start_time)))
+print(('The code for file ' +
+	os.path.split(__file__)[1] +
+	' ran for %.1fs' % ((end_time - start_time))), file=sys.stderr)
+
+
 
 # print()
 # print('Problem 1: Turn the logistic regression example with SGD into a 1-hidden layer '
