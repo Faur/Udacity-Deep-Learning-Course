@@ -35,6 +35,21 @@ class LogisticRegression(object):
 		self.y_pred = T.argmax(self.p_y_given_x, axis=1)
 
 
+	def negative_log_likelihood(self, y):
+		"""Returns the mean of the negative log-likelihood of the prediction
+		of this model given a target. The mean is used in order to allow the 
+		use of minibatches."""
+
+		return -T.mean(
+					T.log(
+						T.sum(
+							self.p_y_given_x * y
+						)
+					)
+				)
+		# y.shape[0] is the symbolic expression for the number of examples
+					# T.log(self.p_y_given_x)[T.arange(y.shape[0]), y])
+
 
 
 
