@@ -65,7 +65,45 @@ classifier = LogisticRegression(input=x, n_in=image_size*image_size, n_out=num_l
 # Symbolic expression for the cost we are trying to minimize
 cost = classifier.negative_log_likelihood(y)
 
+# theano function computing the mistakes the model makes
+test_model = theano.function(
+	inputs=[index],
+	outputs=classifier.errors(y),
+	givens={
+		x: test_dataset[index*batch_size: (index+1)*batch_size, :],
+		y: test_labels[index*batch_size: (index+1)*batch_size],
+	}
+)
 
+validate_model = theano.function(
+	inputs=[index], 
+	outputs=classifier.errors(y),
+	givens={
+		x: valid_dataset[index*batch_size: (index+1)*batch_size],
+		y: valid_labels[index*batch_size: (index+1)*batch_size],		
+	}
+)
+
+# Compute the gradient of cost with respect to W and b
+g_W = T.grad(cost=cost, wrt=classifier.W)
+g_b = T.grad(cost=cost, wrt=classifier.b)
+
+
+# Specifiy how the paramters of the model should be updated
+updates = [	(classifier.W, classifier.W - learning_rate*g_W),
+			(classifier.b, classifier.b - learning_rate*g_b)]
+
+
+# Compile a theano function for training the model
+train_model = theano.function(
+	inputs=[index],
+	outputs=cost,
+	updates=updates,
+	givens={
+		x: train_dataset[index*batch_size: (index+1)*batch_size],
+		y: train_labels[index*batch_size: (index+1)*batch_size]
+	}
+)
 
 # print()
 # print('Problem 1: Turn the logistic regression example with SGD into a 1-hidden layer '
