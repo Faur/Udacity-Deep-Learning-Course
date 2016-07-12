@@ -146,4 +146,5 @@ notMNIST_small/
 notMNIST_large/
 *test*
 *.pickle
+*.pkl
 data/
