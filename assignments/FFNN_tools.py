@@ -40,6 +40,9 @@ class DenseLayer(object):
 				borrow=True
 			)
 
+			if activation == T.nnet.relu:
+				b_values += 1
+
 		self.W = W
 		self.b = b
 		self.params = [self.W, self.b]
