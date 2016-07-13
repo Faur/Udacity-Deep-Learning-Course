@@ -54,7 +54,7 @@ class DenseLayer(object):
 			self.output = activation(lin_output)
 		
 
-class SoftMax(object):
+class SoftMaxLayer(object):
 
 	def __init__(self, input, n_in, n_out):
 		self.input = input
@@ -135,7 +135,7 @@ class MLP(object):
 			activation=activation
 		)
 
-		self.softmaxLayer = SoftMax(
+		self.softmaxLayer = SoftMaxLayer(
 			input	= self.hiddenLayer.output,
 			n_in 	= n_hidden,
 			n_out 	= n_out
