@@ -19,13 +19,13 @@ L1_reg 		= 0.0001
 L2_reg 		= 0.0001
 n_epochs 	= 1000
 batch_size 	= 100
-n_hidden 	= 500
+n_hidden 	= 1024
 
 image_size = 28
 num_labels = 10
 
 n_epochs = 10000
-batch_size = 100
+batch_size = 1
 learning_rate = 0.13
 
 patience = 5000 # Look at this many examples regardless
@@ -72,7 +72,8 @@ classifier = MLP(
 	input = x,
 	n_in = image_size * image_size,
 	n_hidden = n_hidden,
-	n_out = num_labels
+	n_out = num_labels,
+	activation = T.nnet.relu
 )
 
 

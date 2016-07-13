@@ -121,7 +121,7 @@ class SoftMax(object):
 
 class MLP(object):
 
-	def __init__(self, rng, input, n_in, n_hidden, n_out):
+	def __init__(self, rng, input, n_in, n_hidden, n_out, activation=T.tanh):
 		self.input = input
 
 		self.hiddenLayer = DenseLayer(
@@ -129,7 +129,7 @@ class MLP(object):
 			input=input,
 			n_in=n_in,
 			n_out=n_hidden,
-			activation=T.tanh
+			activation=activation
 		)
 
 		self.softmaxLayer = SoftMax(
