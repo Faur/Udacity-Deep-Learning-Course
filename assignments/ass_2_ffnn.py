@@ -147,13 +147,13 @@ while (epoch < n_epochs) and (not done_looping):
 			validation_losses = [valid_model(i) for i in range(n_valid_batches)]
 			this_validation_loss = np.mean(validation_losses)
 
-			print('Epoch {}, minibatch {}/{}, validation error {:2} %%'.format(
-				epoch, minibatch_index + 1, n_train_batches, this_validation_loss*100)
+			print('Epoch {}, iter/patience {}/{}, validation error {:.2f} %'.format(
+				epoch, iter + 1, patience, this_validation_loss*100)
 			)
 
 			if this_validation_loss < best_validation_loss:
 				if(this_validation_loss < best_validation_loss * improvement_threshold):
-					patience = max(patience, iter * patience_increase)
+					patience = max(patience, (iter+1) * patience_increase)
 
 				best_validation_loss = this_validation_loss
 				best_iter = iter
@@ -161,9 +161,20 @@ while (epoch < n_epochs) and (not done_looping):
 				test_losses = [test_model(i) for i in range(n_test_batches)]
 				test_score = np.mean(test_losses)
 
-				print('    test error of best model {:3} %%'.format(
+				print('    test error of best model {:.2f} %'.format(
 					test_score*100)
 				)
+
+		if patience <= iter:
+			done_looping = True
+			break
+
+end_time = timeit.default_timer()
+print(('Optimization complete. Best validation score of %f %% '
+		'obtained at iteration %i, with test performance %f %%') %
+		(best_validation_loss * 100., best_iter + 1, test_score * 100.))
+print(('The code for ran for %.2fm' % ((end_time - start_time) / 60.)))
+
 
 
 print('Done!')
