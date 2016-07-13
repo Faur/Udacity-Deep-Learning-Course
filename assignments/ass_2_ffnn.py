@@ -1,7 +1,4 @@
-
 print(' ... Importin Libaries')
-
-
 import numpy as np
 import timeit
 
@@ -13,20 +10,17 @@ from tools import *
 
 print(' ... Seting up parameters')
 pickle_file = 'notMNIST.pickle'
+image_size = 28
+num_labels = 10
 
 n_hidden 	= 1024
 activation 	= T.nnet.relu
 
-image_size = 28
-num_labels = 10
-
 n_epochs 		= 500
-batch_size 		= 1
+batch_size 		= 500
 learning_rate 	= 0.003
-L1_reg 			= 0.0001
-L2_reg 			= 0.0001
 
-patience = 15000 # Look at this many examples regardless
+patience = 5000 # Look at this many examples regardless
 patience_increase = 2 
 improvement_threshold = 0.995	# A relative improvement of this much is considered
 
@@ -53,7 +47,7 @@ test_dataset, test_labels = shared_dataset(test_dataset, test_labels)
 
 n_train_batches = train_dataset.get_value(borrow=True).shape[0] // batch_size
 n_valid_batches = valid_dataset.get_value(borrow=True).shape[0] // batch_size
-n_test_batches = test_dataset.get_value(borrow=True).shape[0] // batch_size
+n_test_batches  = test_dataset.get_value(borrow=True).shape[0] // batch_size
 
 validation_frequency = min(n_train_batches, patience//2)
 							# Go through this many minibatches before checking the network
@@ -114,7 +108,7 @@ updates = [
 
 train_model = theano.function(
 	inputs=[index],
-	outputs=cost,
+	outputs=[cost, classifier.errors(y)],
 	updates=updates,
 	givens={
 		x: train_dataset[index * batch_size : (index + 1) * batch_size],
@@ -139,7 +133,7 @@ while (epoch < n_epochs) and (not done_looping):
 
 	for minibatch_index in range(n_train_batches):
 
-		minibatch_avg_cost = train_model(minibatch_index)
+		minibatch_avg_cost, minibatch_avg_error = train_model(minibatch_index)
 
 		iter = (epoch-1) * n_train_batches + minibatch_index
 
@@ -147,9 +141,11 @@ while (epoch < n_epochs) and (not done_looping):
 			validation_losses = [valid_model(i) for i in range(n_valid_batches)]
 			this_validation_loss = np.mean(validation_losses)
 
-			print('Epoch: {}, iter/patience: {}/{}, validation error: {:.2f} %. Time: {:.2f}s'.format(
-				epoch, iter + 1, patience, this_validation_loss*100, 
-				(timeit.default_timer() - epoch_time))
+			print('Epoch: {}, iter/patience: {}/{}, Time: {:.2f}s'.format(
+				epoch, iter + 1, patience, (timeit.default_timer() - epoch_time))
+			)
+			print('    training error: {:.2f}% validation error: {:.2f}%'.format(
+				minibatch_avg_error*100, this_validation_loss*100)
 			)
 
 			if this_validation_loss < best_validation_loss:
