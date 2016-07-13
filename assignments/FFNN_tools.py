@@ -54,6 +54,16 @@ class DenseLayer(object):
 			self.output = activation(lin_output)
 		
 
+def dropout(rng, input, drop_rate=0.2):
+		srng = T.shared_randomstreams.RandomStreams(rng.randint(1000000))
+
+		# Use p = 1 - drop_rate because 1's indicate keep
+		mask = srng.binomial(n=1, p=1-drop_rate, size=input.shape)
+	    # The cast is important because: int * float32 = float64, which is bad for the GPU
+		return input * T.cast(mask, theano.config.floatX)
+		
+
+
 class SoftMaxLayer(object):
 
 	def __init__(self, input, n_in, n_out):
@@ -120,23 +130,26 @@ class SoftMaxLayer(object):
 			raise NotImplementedError()
 
 
-
-
 class MLP(object):
 
 	def __init__(self, rng, input, n_in, n_hidden, n_out, activation=T.tanh):
 		self.input = input
 
+		input_drop = dropout(rng, input, drop_rate=0.4)
+
 		self.hiddenLayer = DenseLayer(
-			rng=rng,
-			input=input,
-			n_in=n_in,
-			n_out=n_hidden,
+			rng 	= rng,
+			# input 	= input,
+			input 	= input_drop,
+			n_in 	= n_in,
+			n_out 	= n_hidden,
 			activation=activation
 		)
+		hidden_drop = dropout(rng, self.hiddenLayer.output, drop_rate=0.3)
 
 		self.softmaxLayer = SoftMaxLayer(
-			input	= self.hiddenLayer.output,
+			# input	= self.hiddenLayer.output,
+			input	= hidden_drop,
 			n_in 	= n_hidden,
 			n_out 	= n_out
 		)
