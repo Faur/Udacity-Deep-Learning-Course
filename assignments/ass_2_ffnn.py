@@ -14,21 +14,19 @@ from tools import *
 print(' ... Seting up parameters')
 pickle_file = 'notMNIST.pickle'
 
-learning_rate=0.01
-L1_reg 		= 0.0001
-L2_reg 		= 0.0001
-n_epochs 	= 1000
-batch_size 	= 100
 n_hidden 	= 1024
+activation 	= T.nnet.relu
 
 image_size = 28
 num_labels = 10
 
-n_epochs = 10000
-batch_size = 1
-learning_rate = 0.13
+n_epochs 		= 500
+batch_size 		= 1
+learning_rate 	= 0.003
+L1_reg 			= 0.0001
+L2_reg 			= 0.0001
 
-patience = 5000 # Look at this many examples regardless
+patience = 15000 # Look at this many examples regardless
 patience_increase = 2 
 improvement_threshold = 0.995	# A relative improvement of this much is considered
 
@@ -37,12 +35,12 @@ rng = np.random.RandomState(int(timeit.default_timer()))
 print(' ... Importing data')
 with open(pickle_file, 'rb') as f:
 	save = pickle.load(f)
-	train_dataset = save['train_dataset']
-	train_labels = save['train_labels']
-	valid_dataset = save['valid_dataset']
-	valid_labels = save['valid_labels']
-	test_dataset = save['test_dataset']
-	test_labels = save['test_labels']
+	train_dataset 	= save['train_dataset']
+	train_labels 	= save['train_labels']
+	valid_dataset 	= save['valid_dataset']
+	valid_labels 	= save['valid_labels']
+	test_dataset 	= save['test_dataset']
+	test_labels 	= save['test_labels']
 	del save # Free up memory
 
 train_dataset, train_labels = reformat(train_dataset, train_labels)
@@ -73,7 +71,7 @@ classifier = MLP(
 	n_in = image_size * image_size,
 	n_hidden = n_hidden,
 	n_out = num_labels,
-	activation = T.nnet.relu
+	activation = activation
 )
 
 
@@ -137,6 +135,7 @@ done_looping = False
 
 while (epoch < n_epochs) and (not done_looping):
 	epoch += 1
+	epoch_time = timeit.default_timer()
 
 	for minibatch_index in range(n_train_batches):
 
@@ -148,8 +147,9 @@ while (epoch < n_epochs) and (not done_looping):
 			validation_losses = [valid_model(i) for i in range(n_valid_batches)]
 			this_validation_loss = np.mean(validation_losses)
 
-			print('Epoch {}, iter/patience {}/{}, validation error {:.2f} %'.format(
-				epoch, iter + 1, patience, this_validation_loss*100)
+			print('Epoch: {}, iter/patience: {}/{}, validation error: {:.2f} %. Time: {:.2f}s'.format(
+				epoch, iter + 1, patience, this_validation_loss*100, 
+				(timeit.default_timer() - epoch_time))
 			)
 
 			if this_validation_loss < best_validation_loss:
@@ -162,7 +162,7 @@ while (epoch < n_epochs) and (not done_looping):
 				test_losses = [test_model(i) for i in range(n_test_batches)]
 				test_score = np.mean(test_losses)
 
-				print('    test error of best model {:.2f} %'.format(
+				print('    NEW BEST: Test error {:.2f} %'.format(
 					test_score*100)
 				)
 
@@ -171,6 +171,7 @@ while (epoch < n_epochs) and (not done_looping):
 			break
 
 end_time = timeit.default_timer()
+print()
 print(('Optimization complete. Best validation score of %f %% '
 		'obtained at iteration %i, with test performance %f %%') %
 		(best_validation_loss * 100., best_iter + 1, test_score * 100.))
