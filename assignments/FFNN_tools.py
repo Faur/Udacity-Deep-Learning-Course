@@ -135,21 +135,16 @@ class MLP(object):
 	def __init__(self, rng, input, n_in, n_hidden, n_out, activation=T.tanh):
 		self.input = input
 
-		input_drop = dropout(rng, input, drop_rate=0.4)
-
 		self.hiddenLayer = DenseLayer(
-			rng 	= rng,
-			# input 	= input,
-			input 	= input_drop,
-			n_in 	= n_in,
-			n_out 	= n_hidden,
+			rng=rng,
+			input=input,
+			n_in=n_in,
+			n_out=n_hidden,
 			activation=activation
 		)
-		hidden_drop = dropout(rng, self.hiddenLayer.output, drop_rate=0.3)
 
-		self.softmaxLayer = SoftMaxLayer(
-			# input	= self.hiddenLayer.output,
-			input	= hidden_drop,
+		self.softmaxLayer = SoftMax(
+			input	= self.hiddenLayer.output,
 			n_in 	= n_hidden,
 			n_out 	= n_out
 		)
@@ -171,6 +166,77 @@ class MLP(object):
 		self.errors = self.softmaxLayer.errors
 
 		self.params = self.hiddenLayer.params + self.softmaxLayer.params
+
+
+class MLP_multi(object):
+
+	def __init__(self, rng, input, n_in, n_hidden_1, n_hidden_2, n_hidden_3, n_out,
+			activation=T.tanh):
+		
+		self.input = input
+
+		input_drop = dropout(rng, input, drop_rate=0.4)
+
+		self.hiddenLayer_1 = DenseLayer(
+			rng 	= rng,
+			# input 	= input,
+			input 	= input_drop,
+			n_in 	= n_in,
+			n_out 	= n_hidden_1,
+			activation=activation
+		)
+		hidden_1_drop = dropout(rng, self.hiddenLayer_1.output, drop_rate=0.15)
+
+		self.hiddenLayer_2 = DenseLayer(
+			rng 	= rng,
+			# input 	= input,
+			input 	= hidden_1_drop,
+			n_in 	= n_hidden_1,
+			n_out 	= n_hidden_2,
+			activation=activation
+		)
+		hidden_2_drop = dropout(rng, self.hiddenLayer_2.output, drop_rate=0.15)
+
+		self.hiddenLayer_3 = DenseLayer(
+			rng 	= rng,
+			# input 	= input,
+			input 	= hidden_2_drop,
+			n_in 	= n_hidden_2,
+			n_out 	= n_hidden_3,
+			activation=activation
+		)
+		hidden_3_drop = dropout(rng, self.hiddenLayer_3.output, drop_rate=0.15)
+
+
+		self.softmaxLayer = SoftMaxLayer(
+			# input	= self.hiddenLayer.output,
+			input	= hidden_3_drop,
+			n_in 	= n_hidden_3,
+			n_out 	= n_out
+		)
+
+		self.L1 = (
+			abs(self.hiddenLayer_1.W).sum()
+			+ abs(self.hiddenLayer_2.W).sum()
+			+ abs(self.hiddenLayer_3.W).sum()
+			+ abs(self.softmaxLayer.W).sum()
+		)
+
+		self.L2 = (
+			(self.hiddenLayer_1.W ** 2).sum()
+			+ (self.hiddenLayer_2.W ** 2).sum()
+			+ (self.hiddenLayer_3.W ** 2).sum()
+			+ (self.softmaxLayer.W ** 2).sum()
+		)
+
+		self.negative_log_likelihood = (
+			self.softmaxLayer.negative_log_likelihood
+		)
+
+		self.errors = self.softmaxLayer.errors
+
+		self.params = (self.hiddenLayer_1.params + self.hiddenLayer_2.params 
+				+ self.hiddenLayer_3.params + self.softmaxLayer.params)
 
 
 

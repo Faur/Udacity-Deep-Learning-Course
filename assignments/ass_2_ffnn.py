@@ -13,17 +13,19 @@ pickle_file = 'notMNIST.pickle'
 image_size = 28
 num_labels = 10
 
-n_hidden 	= 1024
-activation 	= T.nnet.relu
+n_hidden_1 	= 1000
+n_hidden_2 	= 500
+n_hidden_3 	= 250
+activation 	= T.tanh
 
 n_epochs 		= 500
-batch_size 		= 500
+batch_size 		= 100
 learning_rate 	= 0.003
-L1_reg 			= 0.001
-L2_reg 			= 0.001
+L1_reg 			= 0.00003
+L2_reg 			= 0.00003
 
 patience = 5000 # Look at this many examples regardless
-patience_increase = 2 
+patience_increase = 3 
 improvement_threshold = 0.995	# A relative improvement of this much is considered
 
 rng = np.random.RandomState(int(timeit.default_timer()))
@@ -49,7 +51,7 @@ test_dataset, test_labels = shared_dataset(test_dataset, test_labels)
 
 n_train_batches = train_dataset.get_value(borrow=True).shape[0] // batch_size
 n_valid_batches = valid_dataset.get_value(borrow=True).shape[0] // batch_size
-n_test_batches  = test_dataset.get_value(borrow=True).shape[0] // batch_size
+n_test_batches  = test_dataset.get_value(borrow=True).shape[0]  // batch_size
 
 validation_frequency = min(n_train_batches, patience//2)
 							# Go through this many minibatches before checking the network
@@ -61,11 +63,13 @@ y 		= T.ivector('y')
 
 
 print(' ... building model')
-classifier = MLP(
+classifier = MLP_multi(
 	rng = rng,
 	input = x,
 	n_in = image_size * image_size,
-	n_hidden = n_hidden,
+	n_hidden_1 = n_hidden_1,
+	n_hidden_2 = n_hidden_2,
+	n_hidden_3 = n_hidden_3,
 	n_out = num_labels,
 	activation = activation
 )
