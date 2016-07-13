@@ -19,6 +19,8 @@ activation 	= T.nnet.relu
 n_epochs 		= 500
 batch_size 		= 500
 learning_rate 	= 0.003
+L1_reg 			= 0.001
+L2_reg 			= 0.001
 
 patience = 5000 # Look at this many examples regardless
 patience_increase = 2 
@@ -144,7 +146,8 @@ while (epoch < n_epochs) and (not done_looping):
 			print('Epoch: {}, iter/patience: {}/{}, Time: {:.2f}s'.format(
 				epoch, iter + 1, patience, (timeit.default_timer() - epoch_time))
 			)
-			print('    training error: {:.2f}% validation error: {:.2f}%'.format(
+			print('    training error: \t\t{:.2f} % \n'
+				'    validation error: \t\t{:.2f} %'.format(
 				minibatch_avg_error*100, this_validation_loss*100)
 			)
 
@@ -158,7 +161,7 @@ while (epoch < n_epochs) and (not done_looping):
 				test_losses = [test_model(i) for i in range(n_test_batches)]
 				test_score = np.mean(test_losses)
 
-				print('    NEW BEST: Test error {:.2f} %'.format(
+				print('    NEW BEST: Test error \t{:.2f} %'.format(
 					test_score*100)
 				)
 
